@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ruvic-aws-cloudwatch-connector"
+version = "1.0.0"
+description = "Conector Ruvic de solo lectura para AWS CloudWatch (métricas, logs y alarmas)"
+requires-python = ">=3.10"
+dependencies = [
+    "boto3>=1.34,<2.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["ruvic_aws_cloudwatch_connector*"]

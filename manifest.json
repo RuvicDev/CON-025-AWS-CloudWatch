@@ -1,0 +1,60 @@
+{
+  "id": "aws_cloudwatch",
+  "name": "AWS CloudWatch",
+  "name_en": "AWS CloudWatch",
+  "version": "1.0.0",
+  "description": "Consulta de métricas y logs en AWS: consultar métricas, leer logs recientes y listar alarmas activas",
+  "description_en": "Query metrics and logs in AWS: query metrics, read recent logs, and list active alarms",
+  "icon": "icon.svg",
+  "category": "cloud",
+  "category_en": "cloud",
+  "keywords": ["aws", "cloudwatch", "amazon", "métricas", "metrics", "logs", "alarmas", "alarms", "cloud", "nube", "monitoreo", "monitoring"],
+  "library": {
+    "package": "ruvic-aws-cloudwatch-connector",
+    "install": "pip install git+https://github.com/Dgirto/AWS-CloudWatch.git#subdirectory=lib",
+    "import_name": "ruvic_aws_cloudwatch_connector"
+  },
+  "auth_modes": [
+    {
+      "id": "access_key",
+      "label": "Access Key ID y Secret Access Key",
+      "fields": [
+        {
+          "key": "access_key_id",
+          "label": "Access Key ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "AKIAIOSFODNN7EXAMPLE"
+        },
+        {
+          "key": "secret_access_key",
+          "label": "Secret Access Key",
+          "type": "password",
+          "secret": true,
+          "required": true
+        },
+        {
+          "key": "region",
+          "label": "Región de AWS",
+          "type": "text",
+          "required": true,
+          "placeholder": "us-east-1"
+        },
+        {
+          "key": "connect_timeout",
+          "label": "Timeout de conexión (segundos)",
+          "type": "number",
+          "required": false,
+          "default": "10"
+        }
+      ]
+    }
+  ],
+  "env_prefix": "RUVIC_AWS_CLOUDWATCH_",
+  "operations": ["cloudwatch.get_metric_statistics", "cloudwatch.get_logs", "cloudwatch.list_active_alarms"],
+  "test_connection": true,
+  "docs": {
+    "skill": "SKILL.md",
+    "permissions_note": "El usuario o rol IAM necesita cloudwatch:GetMetricStatistics, cloudwatch:DescribeAlarms, logs:DescribeLogStreams y logs:GetLogEvents. Todas de solo lectura; no se requieren permisos de escritura ni de administración (cloudwatch:PutMetricAlarm, cloudwatch:DeleteAlarms, logs:PutLogEvents, etc.)."
+  }
+}
