@@ -45,6 +45,13 @@ _MAX_LOG_LIMIT = 500
 _MAX_ALARM_LIMIT = 100
 
 
+def _validate_limit(limit: Any, max_limit: int) -> int:
+    try:
+        return max(1, min(int(limit), max_limit))
+    except (TypeError, ValueError) as exc:
+        raise CloudWatchDataError(f"limit inválido: {limit!r}. Debe ser un número entero.") from exc
+
+
 def _wrap_client_error(exc: ClientError, not_found_message: str) -> CloudWatchConnectorError:
     """Traduce un error de la API de AWS a una excepción propia, sin dejar
     escapar nunca el tipo crudo del SDK."""
@@ -176,7 +183,7 @@ class CloudWatchClient:
             ...     {"InstanceId": "i-0abcd1234"})
             [{'timestamp': '2026-07-17T10:00:00Z', 'value': 23.5, 'unit': 'Percent'}]
         """
-        if statistic not in _VALID_STATS:
+        if not isinstance(statistic, str) or statistic not in _VALID_STATS:
             raise CloudWatchDataError(
                 f"statistic debe ser uno de: {', '.join(sorted(_VALID_STATS))}."
             )
@@ -240,10 +247,12 @@ class CloudWatchClient:
             >>> client.get_recent_logs("/aws/lambda/procesar-pedido", limit=20)
             [{'timestamp': '2026-07-17T10:00:00Z', 'message': 'START RequestId: ...'}]
         """
+        if log_group is not None and not isinstance(log_group, str):
+            raise CloudWatchDataError(f"log_group debe ser un string, no {type(log_group).__name__}.")
         log_group = (log_group or "").strip()
         if not log_group:
             raise CloudWatchDataError("log_group no puede estar vacío.")
-        limit = max(1, min(int(limit), _MAX_LOG_LIMIT))
+        limit = _validate_limit(limit, _MAX_LOG_LIMIT)
         logs_client = self._get_logs_client()
         try:
             streams = logs_client.describe_log_streams(
@@ -293,7 +302,7 @@ class CloudWatchClient:
             >>> client.list_active_alarms()
             [{'name': 'cpu-alta-produccion', 'state': 'ALARM', 'namespace': 'AWS/EC2', ...}]
         """
-        limit = max(1, min(int(limit), _MAX_ALARM_LIMIT))
+        limit = _validate_limit(limit, _MAX_ALARM_LIMIT)
         client = self._get_cloudwatch_client()
         try:
             response = client.describe_alarms(StateValue="ALARM", MaxRecords=limit)
